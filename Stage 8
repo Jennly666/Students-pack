@@ -127,6 +127,14 @@ public:
         students.push_back(&student);
     }
 
+    bool hasTeacher(const Teacher& teacher) const {
+        return std::find(teachers.begin(), teachers.end(), &teacher) != teachers.end();
+    }
+
+    const std::vector<Student*>& getStudents() const {
+        return students;
+    }
+
     void conductLesson() {
         std::cout << "Преподаватели: ";
         for (Teacher* teacher : teachers) {
@@ -160,10 +168,8 @@ public:
         }
         std::cout << "//////////" << std::endl;
     }
-
 private:
     std::string name;
-    std::string subject;
     std::vector<Teacher*> teachers;
     std::vector<Student*> students;
 };
@@ -178,6 +184,10 @@ public:
 
     void addChild(Student& student) {
         children.push_back(&student);
+    }
+
+    bool hasChild(const Student& student) const {
+        return std::find(children.begin(), children.end(), &student) != children.end();
     }
 
     void tellAboutAllChildren() const {
@@ -245,39 +255,109 @@ private:
     std::vector<const Student*> children;
 };
 
+class Meeting {
+public:
+    Meeting(const std::string& name) : name(name) {}
+
+    void addParticipant(Teacher& teacher) {
+        teachers.push_back(&teacher);
+    }
+
+    void addParticipant(Parent& parent) {
+        parents.push_back(&parent);
+    }
+
+    void discussLessons() {
+        std::cout << "Начало обсуждения на собрании: " << name << std::endl;
+
+        for (Lesson& lesson : lessons) {
+            std::cout << "Обсуждение занятия: " << lesson.getName() << std::endl;
+
+            for (Teacher* teacher : teachers) {
+                if (lesson.hasTeacher(*teacher)) {
+                    for (Student* student : lesson.getStudents()) {
+                        Parent* parent = findParentOfStudent(*student);
+                        if (parent) {
+                            parent->tellAboutSpecificChild(student);
+                        }
+                        else {
+                            // Формируем список детей, чьи родители отсутствуют на собрании
+                            childrenWithoutParents.push_back(student);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Оглашение списка детей, чьи родители отсутствуют на собрании
+        if (!childrenWithoutParents.empty()) {
+            std::cout << "Дети, чьи родители отсутствуют на собрании:" << std::endl;
+            for (const Student* student : childrenWithoutParents) {
+                std::cout << student->getName() << std::endl;
+            }
+        }
+
+        std::cout << "Завершение собрания: " << name << std::endl;
+    }
+
+    void addLesson(const Lesson& lesson) {
+        lessons.push_back(lesson);
+    }
+
+private:
+    Parent* findParentOfStudent(const Student& student) {
+        for (Parent* parent : parents) {
+            if (parent->hasChild(student)) {
+                return parent;
+            }
+        }
+        return nullptr;
+    }
+
+    std::string name;
+    std::vector<Teacher*> teachers;
+    std::vector<Parent*> parents;
+    std::vector<Lesson> lessons;
+    std::vector<const Student*> childrenWithoutParents;
+};
+
 int main() {
     std::srand(std::time(0));
     setlocale(LC_ALL, "Russian");
 
-    Student student1("Иванов");
-    Student student2("Петров");
-    Student student3("Петров");
-
-    student1.addGrade(5);
-    student2.addGrade(5);
-
     Teacher teacher1("Сидоров");
     Teacher teacher2("Синевов");
+    Parent parent1("Анна");
+    Parent parent2("Игорь");
+    Student student1("Иванов");
+    Student student2("Петров");
+    Student student3("Сидоров");
 
-    teacher1.addGrade(student1, 5);
-    teacher2.addGrade(student2, 3);
+    parent1.addChild(student1);
+    parent2.addChild(student2);
 
-    Parent parent("Анна");
-    parent.addChild(student1);
-    parent.addChild(student2);
 
-    RandomlyTeacher randomlyTeacher1("Черпаков"); // Класс не обязательно ставит только 5, просто ставит всегда какую-то определенную оценку.
+    Lesson lesson1("Математика");
+    lesson1.addTeacher(teacher1);
+    lesson1.addTeacher(teacher2);
+    lesson1.addStudent(student1);
+    lesson1.addStudent(student2);
+    lesson1.conductLesson();
+    
+    Lesson lesson2("Физика");
+    lesson2.addTeacher(teacher2);
+    lesson2.addStudent(student3);
+    lesson2.conductLesson();
 
-    parent.tellAboutAllChildren();
+    Meeting meeting("Родительское собрание");
+    //meeting.addParticipant(teacher1);
+    meeting.addParticipant(teacher2);
+    meeting.addParticipant(parent1);
+    meeting.addParticipant(parent2);
+    meeting.addLesson(lesson1);
+    meeting.addLesson(lesson2);
 
-    parent.tellAboutOneRandomChild();
+    meeting.discussLessons();
 
-    parent.tellAboutAverageChildren();
-
-    parent.tellAboutSpecificChild(&student2);
-    parent.tellAboutSpecificChild(&student3);
-
-    std::cout << student1.getName() << " отличник: " << (student1.isExcellentStudent() ? "Да" : "Нет") << std::endl;
-    std::cout << student2.getName() << " отличник: " << (student2.isExcellentStudent() ? "Да" : "Нет") << std::endl;
     return 0;
 }
