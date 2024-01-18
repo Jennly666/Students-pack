@@ -230,8 +230,8 @@ public:
         }
     }
 
-private:
-    void tellAboutChild(const Student* student) const {
+protected:
+    virtual void tellAboutChild(const Student* student) const {
         std::cout << "Родитель " << name << " рассказывает о ребенке " << student->getName() << ": ";
         if (goodMood) {
             std::cout << (student->isExcellentStudent() ? "Отличник" : "Не отличник") << std::endl;
@@ -249,11 +249,37 @@ private:
 
         return sum / children.size();
     }
-
+private:
     std::string name;
     bool goodMood = (rand() % 2 == 0);
     std::vector<const Student*> children;
 };
+
+class Grandmother : public Parent {
+public:
+    Grandmother(std::string name) : Parent(name) {}
+    void tellAboutChild(const Student* student) const override {
+        if (hasChild(*student)) {
+            std::cout << "Бабушка " << getName() << " рассказывает о своем внучке " << student->getName() << ": ";
+            std::cout << "Всегда был хороший ребенок, умный и старательный." << std::endl;
+        }
+        else {
+            // Бабушка рассказывает о чужих детях в зависимости от настроения
+            std::cout << "Бабушка " << getName() << " рассказывает о чужом ребенке " << student->getName() << ": ";
+            if (goodMood) {
+                std::cout << (student->isExcellentStudent() ? "Отличник" : "Не отличник") << std::endl;
+            }
+            else {
+                std::cout << "У него всегда что-то не так." << std::endl;
+            }
+        }
+    }
+private:
+    std::string name;
+    bool goodMood = (rand() % 2 == 0);
+    std::vector<const Student*> children;
+};
+
 
 class Meeting {
 public:
@@ -327,7 +353,7 @@ int main() {
 
     Teacher teacher1("Сидоров");
     Teacher teacher2("Синевов");
-    Parent parent1("Анна");
+    Grandmother parent1("Анна");
     Parent parent2("Игорь");
     Student student1("Иванов");
     Student student2("Петров");
