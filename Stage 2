@@ -6,16 +6,16 @@ class Student {
 public:
     Student(std::string name) : name(name) {}
 
+    const std::string& getName() const {
+        return name;
+    }
+
     void addGrade(int grade) {
         grades.push_back(grade);
     }
 
     bool isExcellentStudent() const {
         return calculateAverageGrade() >= 4.5;
-    }
-
-    const std::string& getName() const {
-        return name;
     }
 
 private:
@@ -37,6 +37,23 @@ private:
     std::vector<int> grades;
 };
 
+class Teacher {
+public:
+    Teacher(std::string name) : name(name) {}
+
+    const std::string& getName() const {
+        return name;
+    }
+
+    void addGrade(Student& student, int grade) {
+        student.addGrade(grade);
+
+        std::cout << "Преподаватель " << name << " поставил оценку " << grade
+            << " студенту " << student.getName() << std::endl;
+    }
+private:
+    std::string name;
+};
 
 int main() {
     setlocale(LC_ALL, "Russian");
@@ -45,7 +62,12 @@ int main() {
     Student student2("Петров");
 
     student1.addGrade(5);
-    student2.addGrade(4);
+    student2.addGrade(5);
+
+    Teacher teacher1("Сидоров");
+    Teacher teacher2("Синевов");
+    teacher1.addGrade(student1, 5);
+    teacher2.addGrade(student2, 3);
 
     std::cout << student1.getName() << " отличник: " << (student1.isExcellentStudent() ? "Да" : "Нет") << std::endl;
     std::cout << student2.getName() << " отличник: " << (student2.isExcellentStudent() ? "Да" : "Нет") << std::endl;
