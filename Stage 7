@@ -168,12 +168,90 @@ private:
     std::vector<Student*> students;
 };
 
+class Parent {
+public:
+    Parent(std::string name) : name(name) {}
+
+    const std::string& getName() const {
+        return name;
+    }
+
+    void addChild(Student& student) {
+        children.push_back(&student);
+    }
+
+    void tellAboutAllChildren() const {
+        std::cout << "Рассказ о всех детях:" << std::endl;
+        for (const Student* student : children) {
+            tellAboutChild(student);
+        }
+        std::cout << std::endl;
+    }
+
+    void tellAboutOneRandomChild() const {
+        if (children.empty()) {
+            std::cout << "Нет детей для рассказа." << std::endl;
+            return;
+        }
+
+        int randomIndex = rand() % children.size();
+        tellAboutChild(children[randomIndex]);
+        std::cout << std::endl;
+    }
+
+    void tellAboutAverageChildren() const {
+        if (children.empty()) {
+            std::cout << "Нет детей для рассказа." << std::endl;
+            return;
+        }
+
+        double averageGrade = calculateAverageGrade();
+        std::cout << "Рассказ о средней успеваемости детей: " << (averageGrade >= 4.5 ? "Хорошая" : "Плохая") << std::endl;
+        std::cout << std::endl;
+    }
+
+    void tellAboutSpecificChild(const Student* student) const {
+        auto it = std::find(children.begin(), children.end(), student);
+        if (it != children.end()) {
+            tellAboutChild(*it);
+        }
+        else {
+            std::cout << "Ошибка: Этот студент не является ребенком родителя." << std::endl;
+        }
+    }
+
+private:
+    void tellAboutChild(const Student* student) const {
+        std::cout << "Родитель " << name << " рассказывает о ребенке " << student->getName() << ": ";
+        if (goodMood) {
+            std::cout << (student->isExcellentStudent() ? "Отличник" : "Не отличник") << std::endl;
+        }
+        else {
+            std::cout << "У него всегда что-то не так." << std::endl;
+        }
+    }
+
+    double calculateAverageGrade() const {
+        double sum = 0.0;
+        for (const Student* student : children) {
+            sum += (student->isExcellentStudent() ? 5.0 : 3.0);
+        }
+
+        return sum / children.size();
+    }
+
+    std::string name;
+    bool goodMood = (rand() % 2 == 0);
+    std::vector<const Student*> children;
+};
+
 int main() {
     std::srand(std::time(0));
     setlocale(LC_ALL, "Russian");
 
     Student student1("Иванов");
     Student student2("Петров");
+    Student student3("Петров");
 
     student1.addGrade(5);
     student2.addGrade(5);
@@ -184,34 +262,20 @@ int main() {
     teacher1.addGrade(student1, 5);
     teacher2.addGrade(student2, 3);
 
-    std::cout << "______________" << std::endl;
-
-    teacher1.addGradeRandomly(student1);
-    teacher2.addGradeRandomly(student2);
-    teacher2.addGradeRandomly(student2);
-    teacher2.addGradeRandomly(student2);
-    teacher2.addGradeRandomly(student2);
-    teacher2.addGradeRandomly(student2);
-    teacher2.addGradeRandomly(student2);
-
-    std::cout << "______________" << std::endl;
+    Parent parent("Анна");
+    parent.addChild(student1);
+    parent.addChild(student2);
 
     RandomlyTeacher randomlyTeacher1("Черпаков"); // Класс не обязательно ставит только 5, просто ставит всегда какую-то определенную оценку.
-    randomlyTeacher1.addGrade(student1);
-    randomlyTeacher1.addGrade(student1);
-    randomlyTeacher1.addGrade(student2);
-    randomlyTeacher1.addGrade(student2);
-    randomlyTeacher1.addGrade(student2);
-    randomlyTeacher1.addGrade(student2);
 
-    std::cout << "______________" << std::endl;
+    parent.tellAboutAllChildren();
 
-    Lesson lesson1("Математика");
-    lesson1.addTeacher(teacher1);
-    lesson1.addTeacher(randomlyTeacher1);
-    lesson1.addStudent(student1);
-    lesson1.addStudent(student2);
-    lesson1.conductLesson();
+    parent.tellAboutOneRandomChild();
+
+    parent.tellAboutAverageChildren();
+
+    parent.tellAboutSpecificChild(&student2);
+    parent.tellAboutSpecificChild(&student3);
 
     std::cout << student1.getName() << " отличник: " << (student1.isExcellentStudent() ? "Да" : "Нет") << std::endl;
     std::cout << student2.getName() << " отличник: " << (student2.isExcellentStudent() ? "Да" : "Нет") << std::endl;
