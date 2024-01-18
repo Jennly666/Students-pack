@@ -70,6 +70,24 @@ private:
     std::string name;
 };
 
+class RandomlyTeacher {
+public:
+    RandomlyTeacher(std::string name) : name(name) {}
+
+    const std::string& getName() const {
+        return name;
+    }
+    void addGrade(Student& student) {
+        student.addGrade(grade);
+        std::cout << "Преподаватель " << name << " поставил оценку " << grade
+            << " студенту " << student.getName() << std::endl;
+    }
+private:
+    int grade = (rand() % 4 + 2);
+    std::string name;
+};
+
+
 class Lesson {
 public:
     Lesson(std::string name) : name(name) {}
@@ -119,6 +137,12 @@ int main() {
     lesson1.addStudent(student1);
     lesson1.addStudent(student2);
     lesson1.conductLesson();
+
+    RandomlyTeacher randomlyTeacher1("Черпаков"); // Класс не обязательно ставит только 5, просто ставит всегда какую-то определенную оценку.
+    randomlyTeacher1.addGrade(student1);
+    randomlyTeacher1.addGrade(student1);
+    randomlyTeacher1.addGrade(student2);
+    randomlyTeacher1.addGrade(student2);
 
     std::cout << student1.getName() << " отличник: " << (student1.isExcellentStudent() ? "Да" : "Нет") << std::endl;
     std::cout << student2.getName() << " отличник: " << (student2.isExcellentStudent() ? "Да" : "Нет") << std::endl;
