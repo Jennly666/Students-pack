@@ -23,12 +23,10 @@ private:
         if (grades.empty()) {
             return 0.0;
         }
-
         double sum = 0.0;
         for (int grade : grades) {
             sum += grade;
         }
-
         return sum / grades.size();
     }
 
@@ -45,17 +43,33 @@ public:
         return name;
     }
 
+    void addGradeRandomly(Student& student) {
+        int adjustedGrade = calculateAdjustedGrade(student.isExcellentStudent());
+        student.addGrade(adjustedGrade);
+        std::cout << "Преподаватель " << name << " поставил оценку " << adjustedGrade
+            << " студенту " << student.getName() << " с " << (goodMood ? "хорошим" : "плохим") << " настроением" << std::endl;
+    }
+
     void addGrade(Student& student, int grade) {
         student.addGrade(grade);
-
         std::cout << "Преподаватель " << name << " поставил оценку " << grade
             << " студенту " << student.getName() << std::endl;
     }
 private:
+    int calculateAdjustedGrade(bool isExcellentStudent) const {
+        if (goodMood) {
+            return (isExcellentStudent) ? 5 : (rand() % 2 + 4);
+        }
+        else {
+            return (isExcellentStudent) ? (rand() % 2 + 4) : (rand() % 2 + 2);
+        }
+    }
+    bool goodMood = (rand() % 2 == 0); // Равновероятное хорошее или плохое настроение
     std::string name;
 };
 
 int main() {
+    std::srand(std::time(0));
     setlocale(LC_ALL, "Russian");
 
     Student student1("Иванов");
@@ -68,6 +82,9 @@ int main() {
     Teacher teacher2("Синевов");
     teacher1.addGrade(student1, 5);
     teacher2.addGrade(student2, 3);
+
+    teacher1.addGradeRandomly(student1);
+    teacher2.addGradeRandomly(student2);
 
     std::cout << student1.getName() << " отличник: " << (student1.isExcellentStudent() ? "Да" : "Нет") << std::endl;
     std::cout << student2.getName() << " отличник: " << (student2.isExcellentStudent() ? "Да" : "Нет") << std::endl;
