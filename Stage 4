@@ -23,10 +23,12 @@ private:
         if (grades.empty()) {
             return 0.0;
         }
+
         double sum = 0.0;
         for (int grade : grades) {
             sum += grade;
         }
+
         return sum / grades.size();
     }
 
@@ -68,6 +70,32 @@ private:
     std::string name;
 };
 
+class Lesson {
+public:
+    Lesson(std::string name) : name(name) {}
+    void addTeacher(Teacher& teacher) {
+        teachers.push_back(&teacher);
+    }
+
+    void addStudent(Student& student) {
+        students.push_back(&student);
+    }
+
+    void conductLesson() {
+        for (Teacher* teacher : teachers) {
+            for (Student* student : students) {
+                teacher->addGradeRandomly(*student);
+            }
+        }
+    }
+
+private:
+    std::string name;
+    std::string subject;
+    std::vector<Teacher*> teachers;
+    std::vector<Student*> students;
+};
+
 int main() {
     std::srand(std::time(0));
     setlocale(LC_ALL, "Russian");
@@ -86,8 +114,13 @@ int main() {
     teacher1.addGradeRandomly(student1);
     teacher2.addGradeRandomly(student2);
 
+    Lesson lesson1("Математика");
+    lesson1.addTeacher(teacher1);
+    lesson1.addStudent(student1);
+    lesson1.addStudent(student2);
+    lesson1.conductLesson();
+
     std::cout << student1.getName() << " отличник: " << (student1.isExcellentStudent() ? "Да" : "Нет") << std::endl;
     std::cout << student2.getName() << " отличник: " << (student2.isExcellentStudent() ? "Да" : "Нет") << std::endl;
-
     return 0;
 }
